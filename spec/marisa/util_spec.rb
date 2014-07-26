@@ -30,4 +30,14 @@ describe 'Marisa::Util' do
       expect(Marisa::Util.split_header(header)).to match_array tree
     }
   end
+
+  context "#quote" do
+    it { expect(Marisa::Util.quote('foo; 23 "bar')).to eq('"foo; 23 \"bar"') }
+    it { expect(Marisa::Util.quote('"foo; 23 "bar"')).to eq('"\"foo; 23 \"bar\""')}
+  end
+
+  context "#unquote" do
+    it { expect(Marisa::Util.unquote('"foo 23 \"bar"')).to eq('foo 23 "bar')}
+    it { expect(Marisa::Util.unquote('"\"foo 23 \"bar\""')).to eq('"foo 23 "bar"')}
+  end
 end

@@ -1,10 +1,8 @@
 module Marisa
   module Util
     def self.quote(str)
-      str.gsub!(/(["\\])/) do |text|
-        text = '\\' + $1
-      end
-      %("#{text}")
+      str.gsub!(/(["\\])/) { "\\" + $1 }
+      %("#{str}")
     end
 
     def self.split_header(str)
