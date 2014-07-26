@@ -26,20 +26,20 @@ describe 'Marisa::Cookie::Request' do
     end
   end
 
-  context "Empry requset cookie" do
+  context 'Empry requset cookie' do
     it do
       expect(Marisa::Cookie::Request.parse).to match_array []
     end
   end
 
-  context "Parse normal request cookie (RFC 2965)" do
+  context 'Parse normal request cookie (RFC 2965)' do
     subject(:cookies) { Marisa::Cookie::Request.parse('$Version=1; foo=bar; $Path="/test"')}
     it { expect(cookies[0].name).to eq('foo') }
     it { expect(cookies[0].value).to eq('bar') }
     it { expect(cookies[1]).to eq(nil) }
   end
 
-  context "Parse request cookies from multiple header value (RFC 2965)" do
+  context 'Parse request cookies from multiple header value (RFC 2965)' do
     subject(:cookies) { Marisa::Cookie::Request.parse('$Version=1; foo=bar; $Path="/test", $Version=0; baz=yada; $Path="/test"')}
     it { expect(cookies[0].name).to eq('foo') }
     it { expect(cookies[0].value).to eq('bar') }
@@ -48,4 +48,43 @@ describe 'Marisa::Cookie::Request' do
     it { expect(cookies[2]).to eq(nil) }
   end
 
+  context 'Parse request cookie (netscape)' do
+    subject (:cookies) { Marisa::Cookie::Request.parse('CUSTOMER=WILE_E_COYOTE') }
+    it { expect(cookies[0].name).to eq('CUSTOMER') }
+    it { expect(cookies[0].value).to eq('WILE_E_COYOTE') }
+    it { expect(cookies[1]).to eq(nil) }
+  end
+
+  context 'Parse multiple request cookies (Netscape)' do
+    subject (:cookies) { Marisa::Cookie::Request.parse('CUSTOMER=WILE_E_COYOTE; PART_NUMBER=ROCKET_LAUNCHER_0001') }
+    it { expect(cookies[0].name).to eq('CUSTOMER') }
+    it { expect(cookies[0].value).to eq('WILE_E_COYOTE') }
+    it { expect(cookies[1].name).to eq('PART_NUMBER') }
+    it { expect(cookies[1].value).to eq('ROCKET_LAUNCHER_0001') }
+    it { expect(cookies[2]).to eq(nil) }
+  end
+
+  context 'Parse multiple request cookies from multiple header values (Netscape)' do
+    subject (:cookies) { Marisa::Cookie::Request.parse('CUSTOMER=WILE_E_COYOTE, PART_NUMBER=ROCKET_LAUNCHER_0001') }
+    it { expect(cookies[0].name).to eq('CUSTOMER') }
+    it { expect(cookies[0].value).to eq('WILE_E_COYOTE') }
+    it { expect(cookies[1].name).to eq('PART_NUMBER') }
+    it { expect(cookies[1].value).to eq('ROCKET_LAUNCHER_0001') }
+    it { expect(cookies[2]).to eq(nil) }
+  end
+
+  context 'Parse request cookie without value (RFC 2965)' do
+    context do
+      subject (:cookies) { Marisa::Cookie::Request.parse('$Version=1; foo=; $Path="/test"') }
+      it { expect(cookies[0].name).to eq('foo') }
+      it { expect(cookies[0].value).to eq('') }
+      it { expect(cookies[1]).to eq(nil) }
+    end
+    context do
+      subject (:cookies) { Marisa::Cookie::Request.parse('$Version=1; foo=""; $Path="/test"') }
+      it { expect(cookies[0].name).to eq('foo') }
+      it { expect(cookies[0].value).to eq('') }
+      it { expect(cookies[1]).to eq(nil) }
+    end
+  end
 end
