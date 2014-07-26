@@ -10,12 +10,14 @@ module Marisa
     def self.split_header(str)
       tree = []
       token = []
-      str.gsub!(/^[,;\s]*([^=;, ]+)\s*/) do |text|
-        text = ''
+      while (str.length != 0)
+        str.sub!(/^[,;\s]*([^=;, ]+)\s*/, '')
         token.push($1)
         token.push(nil)
 
-        token[-1] = unquote if str.sub!(/^=\s*("(?:\\\\|\\"|[^"])*"|[^;, ]*)\s*/, "")
+        if str.sub!(/^=\s*("(?:\\\\|\\"|[^"])*"|[^;, ]*)\s*/, '')
+          token[-1] = unquote($1)
+        end
 
         # Separator
         str.sub!(/^;\s*/, '')

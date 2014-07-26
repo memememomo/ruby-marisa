@@ -3,7 +3,7 @@ require 'marisa/util'
 
 module Marisa
   module Cookie
-    class Request > Marisa::Cookie
+    class Request < Marisa::Cookie
       def parse(str='')
         cookies = []
         split_header(str).each_cons do |name, value|
