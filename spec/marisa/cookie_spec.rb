@@ -87,4 +87,30 @@ describe 'Marisa::Cookie::Request' do
       it { expect(cookies[1]).to eq(nil) }
     end
   end
+
+  context 'Parse quoted request cookie (RFC 2965)' do
+    subject (:cookies) { Marisa::Cookie::Request.parse('$Version=1; foo="b ,a\" r\"\\\\"; $Path="/test"') }
+    it { expect(cookies[0].name).to eq('foo') }
+    it { expect(cookies[0].value).to eq('b ,a" r"\\') }
+    it { expect(cookies[1]).to eq(nil) }
+  end
+
+  context 'Parse quoted request cookie roundtrip (RFC 2965)' do
+    subject (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="b ,a\";= r\"\\\\"; $Path="/test"') }
+    it { expect(cookies1[0].name).to eq('foo') }
+    it { expect(cookies1[0].value).to eq('b ,a";= r"\\') }
+    it { expect(cookies1[1]).to eq(nil) }
+    it do
+      cookies2 = Marisa::Cookie::Request.parse(cookies1[0].to_s)
+      expect(cookies2[0].name).to eq('foo')
+    end
+    it do
+      cookies2 = Marisa::Cookie::Request.parse(cookies1[0].to_s)
+      expect(cookies2[0].value).to eq('b ,a";= r"\\')
+    end
+    it do
+      cookies2 = Marisa::Cookie::Request.parse(cookies1[0].to_s)
+      expect(cookies2[1]).to eq(nil)
+    end
+  end
 end

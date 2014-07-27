@@ -4,7 +4,7 @@ module Marisa
     class Base
       attr_accessor :name, :value
 
-      def initialize(name, value)
+      def initialize(name=nil, value=nil)
         self.name = name
         self.value = value
       end

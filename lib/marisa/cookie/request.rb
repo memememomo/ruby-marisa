@@ -14,23 +14,23 @@ module Marisa
         end
         if pairs.length > 0
           pairs.each_slice(2) do |attr|
-            name = attr[0]
-            value = attr[1]
-            next if name =~ /^\$/
-            cookies.push(Request.new(name, value))
+            n = attr[0]
+            v = attr[1]
+            next if n =~ /^\$/
+            cookies.push(Request.new(n, v))
           end
         end
         cookies
       end
 
       def to_s
-        name = self.name || ''
-        return '' unless name.length
-        value = self.value || ''
-        if value =~ /[,;" ]/
-          value = Marisa::Util.quote(value)
+        n = self.name || ''
+        return '' unless n.length
+        v = self.value || ''
+        if v =~ /[,;" ]/
+          v = Marisa::Util.quote(v)
         end
-        [name,value].join('=')
+        [n,v].join('=')
       end
     end
   end
