@@ -1,0 +1,79 @@
+require 'marisa/cookie'
+require 'marisa/util'
+
+module Marisa
+  module Cookie
+    class Response < Marisa::Cookie::Base
+      attr_accessor :domain, :httponly, :max_age, :origin, :path, :secure
+
+      def expires(arg=nil)
+        e = self.expires
+        return self.expires = e.class == 'Date' ? e : Date.parse(e) unless arg
+        self.expires = arg
+        self
+      end
+
+      def self.parse(str='')
+        cookies = []
+        tree = Marisa::Util.split_header(str)
+        while tree.length > 0
+          pairs = tree.shift
+          i = 0
+          while pairs.length > 0
+            name = pairs.shift
+            value = pairs.shift
+
+            # "expires" is a special case, thank you Netscape...
+            if /^expires$/i =~ name
+              pairs += tree.shift || []
+              len = /-/ =~ (pairs[0] || '') ? 6 : 10
+              value += pairs.slice(0, len).select {|n| n != nil }
+            end
+
+            # This will only run once
+            unless i
+              i++
+              cookies.push(Response.new(name, value))
+              next
+            end
+
+            # Attributes (Netscape and RFC 6265)
+            next unless /^(expires|domain|path|secure|max-age|httponly)$/i =~ name
+            attr = $1
+            attr = 'max_age' if attr == 'max-age'
+            cookies[-1].__send__(attr, (attr == 'secure' || attr == 'httponly' ? 1 : value))
+          end
+        end
+
+        cookies
+      end
+
+      def to_s
+        # Name and value (Netscape)
+        return '' unless self.name.length
+        value = self.value || ''
+        cookie = [name, value =~ /[,;" ]/ ? Marisa::Util.quote(value) : value].join('=')
+
+        # "expires" (Netscape)
+        cookie += "; expreis=#{self.expires}" if self.expires
+
+        # "domain" (Netscape)
+        cookie += "; domain=#{self.domain}" if self.domain
+
+        # "path" (Netscape)
+        cookie += "; path=#{self.path}" if self.path
+
+        # "secure" (Netscape)
+        cookie += '; secure' if self.secure
+
+        # "Max-Age" (RFC 6265)
+        cookie += "; Max-Age=#{self.max_age}" if self.max_age
+
+        # "HttpOnly" (RFC 6265)
+        cookie += '; HttpOnly' if self.httponly
+
+        cookie
+      end
+    end
+  end
+end
