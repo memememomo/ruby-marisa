@@ -11,7 +11,7 @@ module Marisa
       end
 
       def expires
-        @expires
+        @expires.httpdate
       end
 
       def self.parse(str='')
@@ -28,21 +28,21 @@ module Marisa
             if /^expires$/i =~ name
               pairs += tree.shift || []
               len = /-/ =~ (pairs[0] || '') ? 6 : 10
-              value += pairs.slice(0, len).select {|n| n != nil }
+              value += pairs.slice(0, len).select {|n| n != nil }.unshift(',').join(' ')
             end
 
             # This will only run once
-            unless i
-              i++
-              cookies.push(Response.new(name, value))
+            if i == 0
+              i += 1
+              cookies << Response.new(name, value)
               next
             end
 
             # Attributes (Netscape and RFC 6265)
-            next unless /^(expires|domain|path|secure|max-age|httponly)$/i =~ name
+            next if /^(expires|domain|path|secure|max-age|httponly)$/i !~ name
             attr = $1
             attr = 'max_age' if attr == 'max-age'
-            cookies[-1].__send__(attr, (attr == 'secure' || attr == 'httponly' ? 1 : value))
+            cookies[-1].__send__(attr+'=', (attr == 'secure' || attr == 'httponly' ? 1 : value))
           end
         end
 

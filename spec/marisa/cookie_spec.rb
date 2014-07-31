@@ -201,4 +201,18 @@ describe 'Marisa::Cookie::Response' do
       expect(cookies.to_s).to eq('0="ba r"; expires=Thu, 07 Aug 2008 07:07:59 GMT; domain=example.com; path=/test; secure; Max-Age=60; HttpOnly')
     end
   end
+
+  context 'Empty response cookie' do
+    it { expect(Marisa::Cookie::Response.parse()).to match_array [] }
+  end
+
+  context 'Parse response cookie (Netscape)' do
+    it do
+      cookies = Marisa::Cookie::Response.parse('CUSTOMER=WILE_E_COYOTE; path=/; expires=Tuesday, 09-Nov-1999 23:12:40 GMT')
+      expect(cookies[0].name).to eq('CUSTOMER')
+      expect(cookies[0].value).to eq('WILE_E_COYOTE')
+      expect(cookies[0].expires).to eq('Tue, 09 Nov 1999 23:12:40 GMT')
+      expect(cookies[1]).to be_nil
+    end
+  end
 end
