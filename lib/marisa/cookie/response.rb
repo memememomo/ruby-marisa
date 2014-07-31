@@ -6,11 +6,12 @@ module Marisa
     class Response < Marisa::Cookie::Base
       attr_accessor :domain, :httponly, :max_age, :origin, :path, :secure
 
-      def expires(arg=nil)
-        e = self.expires
-        return self.expires = e.class == 'Date' ? e : Date.parse(e) unless arg
-        self.expires = arg
-        self
+      def expires=(val)
+        @expires = val.class == 'Time' ? val : Marisa::Util.parse_date(val)
+      end
+
+      def expires
+        @expires
       end
 
       def self.parse(str='')
@@ -50,27 +51,27 @@ module Marisa
 
       def to_s
         # Name and value (Netscape)
-        return '' unless self.name.length
-        value = self.value || ''
+        return '' unless @name.length
+        value = @value || ''
         cookie = [name, value =~ /[,;" ]/ ? Marisa::Util.quote(value) : value].join('=')
 
         # "expires" (Netscape)
-        cookie += "; expreis=#{self.expires}" if self.expires
+        cookie += "; expires=#{@expires.httpdate}" if @expires
 
         # "domain" (Netscape)
-        cookie += "; domain=#{self.domain}" if self.domain
+        cookie += "; domain=#{@domain}" if @domain
 
         # "path" (Netscape)
-        cookie += "; path=#{self.path}" if self.path
+        cookie += "; path=#{@path}" if @path
 
         # "secure" (Netscape)
-        cookie += '; secure' if self.secure
+        cookie += '; secure' if @secure
 
         # "Max-Age" (RFC 6265)
-        cookie += "; Max-Age=#{self.max_age}" if self.max_age
+        cookie += "; Max-Age=#{@max_age}" if @max_age
 
         # "HttpOnly" (RFC 6265)
-        cookie += '; HttpOnly' if self.httponly
+        cookie += '; HttpOnly' if @httponly
 
         cookie
       end

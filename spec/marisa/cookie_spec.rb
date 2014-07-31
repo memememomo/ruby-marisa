@@ -1,5 +1,6 @@
 require 'rspec'
 require 'marisa/cookie/request'
+require 'marisa/cookie/response'
 
 describe 'Marisa::Cookie::Request' do
 
@@ -154,5 +155,50 @@ describe 'Marisa::Cookie::Request' do
     it { expect(cookies[1].name).to eq('baz') }
     it { expect(cookies[1].value).to eq('la la') }
     it { expect(cookies[2]).to eq(nil) }
+  end
+end
+
+describe 'Marisa::Cookie::Response' do
+  context 'Reponse cookie as string' do
+    subject (:cookies) do
+      cookies = Marisa::Cookie::Response.new
+      cookies.name = 'foo'
+      cookies.value = 'ba r'
+      cookies.path = '/test'
+      cookies
+    end
+    it { expect(cookies.to_s).to eq('foo="ba r"; path=/test') }
+  end
+
+  context 'Response cookie without value as string' do
+    it do
+      cookies = Marisa::Cookie::Response.new
+      cookies.name = 'foo'
+      cookies.path = '/test'
+      expect(cookies.to_s).to eq('foo=; path=/test')
+    end
+
+    it do
+      cookies = Marisa::Cookie::Response.new
+      cookies.name = 'foo'
+      cookies.value = ''
+      cookies.path = '/test'
+      expect(cookies.to_s).to eq('foo=; path=/test')
+    end
+  end
+
+  context 'Full response cookie as string' do
+    it do
+      cookies = Marisa::Cookie::Response.new
+      cookies.name = '0'
+      cookies.value = 'ba r'
+      cookies.domain = 'example.com'
+      cookies.path = '/test'
+      cookies.max_age = 60
+      cookies.expires = 1218092879
+      cookies.secure = 1
+      cookies.httponly = 1
+      expect(cookies.to_s).to eq('0="ba r"; expires=Thu, 07 Aug 2008 07:07:59 GMT; domain=example.com; path=/test; secure; Max-Age=60; HttpOnly')
+    end
   end
 end
