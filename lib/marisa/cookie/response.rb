@@ -11,7 +11,7 @@ module Marisa
       end
 
       def expires
-        @expires.httpdate
+        @expires.nil? ? nil : @expires.httpdate
       end
 
       def self.parse(str='')
@@ -51,27 +51,27 @@ module Marisa
 
       def to_s
         # Name and value (Netscape)
-        return '' unless @name.length
-        value = @value || ''
+        return '' unless self.name.length
+        value = self.value || ''
         cookie = [name, value =~ /[,;" ]/ ? Marisa::Util.quote(value) : value].join('=')
 
         # "expires" (Netscape)
-        cookie += "; expires=#{@expires.httpdate}" if @expires
+        cookie += "; expires=#{self.expires}" if self.expires
 
         # "domain" (Netscape)
-        cookie += "; domain=#{@domain}" if @domain
+        cookie += "; domain=#{self.domain}" if self.domain
 
         # "path" (Netscape)
-        cookie += "; path=#{@path}" if @path
+        cookie += "; path=#{self.path}" if self.path
 
         # "secure" (Netscape)
-        cookie += '; secure' if @secure
+        cookie += '; secure' if self.secure
 
         # "Max-Age" (RFC 6265)
-        cookie += "; Max-Age=#{@max_age}" if @max_age
+        cookie += "; Max-Age=#{self.max_age}" if self.max_age
 
         # "HttpOnly" (RFC 6265)
-        cookie += '; HttpOnly' if @httponly
+        cookie += '; HttpOnly' if self.httponly
 
         cookie
       end
