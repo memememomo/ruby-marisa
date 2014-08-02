@@ -27,7 +27,7 @@ describe 'Marisa::Cookie::Request' do
     end
   end
 
-  context 'Empry requset cookie' do
+  context 'Empty request cookie' do
     it do
       expect(Marisa::Cookie::Request.parse).to match_array []
     end
@@ -97,55 +97,47 @@ describe 'Marisa::Cookie::Request' do
   end
 
   context 'Parse quoted request cookie roundtrip (RFC 2965)' do
-    subject (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="b ,a\";= r\"\\\\"; $Path="/test"') }
+    let (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="b ,a\";= r\"\\\\"; $Path="/test"') }
     it { expect(cookies1[0].name).to eq('foo') }
     it { expect(cookies1[0].value).to eq('b ,a";= r"\\') }
     it { expect(cookies1[1]).to be_nil }
-    it do
-      cookies2 = Marisa::Cookie::Request.parse(cookies1[0].to_s)
-      expect(cookies2[0].name).to eq('foo')
-      expect(cookies2[0].value).to eq('b ,a";= r"\\')
-      expect(cookies2[1]).to be_nil
-    end
+    let (:cookies2) { Marisa::Cookie::Request.parse(cookies1[0].to_s) }
+    it { expect(cookies2[0].name).to eq('foo') }
+    it { expect(cookies2[0].value).to eq('b ,a";= r"\\') }
+    it { expect(cookies2[1]).to be_nil }
   end
 
   context 'Parse quoted request cookie roundtrip (RFC 2965, alternative)' do
-    subject (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="b ,a\" r\"\\\\"; $Path="/test"')}
+    let (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="b ,a\" r\"\\\\"; $Path="/test"')}
     it { expect(cookies1[0].name).to eq('foo') }
     it { expect(cookies1[0].value).to eq('b ,a" r"\\') }
     it { expect(cookies1[1]).to be_nil }
-    it do
-      cookies2 = Marisa::Cookie::Request.parse(cookies1[0].to_s)
-      expect(cookies2[0].name).to eq('foo')
-      expect(cookies2[0].value).to eq('b ,a" r"\\')
-      expect(cookies2[1]).to be_nil
-    end
+    let (:cookies2) { Marisa::Cookie::Request.parse(cookies1[0].to_s) }
+    it { expect(cookies2[0].name).to eq('foo') }
+    it { expect(cookies2[0].value).to eq('b ,a" r"\\') }
+    it { expect(cookies2[1]).to be_nil }
   end
 
   context 'Parse quoted request cookie roundtrip (RFC 2965, another alternative)' do
-    subject (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="b ;a\" r\"\\\\"; $Path="/test"') }
+    let (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="b ;a\" r\"\\\\"; $Path="/test"') }
     it { expect(cookies1[0].name).to eq('foo') }
     it { expect(cookies1[0].value).to eq('b ;a" r"\\') }
     it { expect(cookies1[1]).to be_nil }
-    it do
-      cookies2 = Marisa::Cookie::Request.parse(cookies1[0].to_s)
-      expect(cookies2[0].name).to eq('foo')
-      expect(cookies2[0].value).to eq('b ;a" r"\\')
-      expect(cookies2[1]).to be_nil
-    end
+    let (:cookies2) { Marisa::Cookie::Request.parse(cookies1[0].to_s) }
+    it { expect(cookies2[0].name).to eq('foo') }
+    it { expect(cookies2[0].value).to eq('b ;a" r"\\') }
+    it { expect(cookies2[1]).to be_nil }
   end
 
   context 'Parse quoted request cookie roundtrip (RFC 2965, yet another alternative)' do
-    subject (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="\"b a\" r\""; $Path="/test"') }
+    let (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="\"b a\" r\""; $Path="/test"') }
     it { expect(cookies1[0].name).to eq('foo') }
     it { expect(cookies1[0].value).to eq('"b a" r"') }
     it { expect(cookies1[1]).to be_nil }
-    it do
-      cookies2 = Marisa::Cookie::Request.parse(cookies1[0].to_s)
-      expect(cookies2[0].name).to eq('foo')
-      expect(cookies2[0].value).to eq('"b a" r"')
-      expect(cookies2[1]).to be_nil
-    end
+    let (:cookies2) { Marisa::Cookie::Request.parse(cookies1[0].to_s) }
+    it { expect(cookies2[0].name).to eq('foo') }
+    it { expect(cookies2[0].value).to eq('"b a" r"') }
+    it { expect(cookies2[1]).to be_nil }
   end
 
   context 'Parse multiple cookie request (RFC 2965)' do
@@ -203,7 +195,7 @@ describe 'Marisa::Cookie::Response' do
   end
 
   context 'Empty response cookie' do
-    it { expect(Marisa::Cookie::Response.parse()).to match_array [] }
+    it { expect(Marisa::Cookie::Response.parse).to match_array [] }
   end
 
   context 'Parse response cookie (Netscape)' do
@@ -301,7 +293,6 @@ describe 'Marisa::Cookie::Response' do
           'foo="b ,a\";= r\"\\\\"; Domain=example.com; Path=/test; Max-Age=60; Expires=Thu, 07 Aug 2008 07:07:59 GMT; Secure'
       )
     end
-    let (:cookies2) { Marisa::Cookie::Response.parse(cookies1[0]) }
     it { expect(cookies1[0].name).to eq('foo') }
     it { expect(cookies1[0].value).to eq('b ,a";= r"\\') }
     it { expect(cookies1[0].domain).to eq('example.com') }
@@ -310,6 +301,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies1[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies1[0].secure).to eq(1) }
     it { expect(cookies1[1]).to be_nil }
+    let (:cookies2) { Marisa::Cookie::Response.parse(cookies1[0]) }
     it { expect(cookies2[0].name).to eq('foo') }
     it { expect(cookies2[0].value).to eq('b ,a";= r"\\') }
     it { expect(cookies2[0].domain).to eq('example.com') }
@@ -326,7 +318,6 @@ describe 'Marisa::Cookie::Response' do
           'foo="b ,a\" r\"\\\\"; Domain=example.com; Path=/test; Max-Age=60; Expires=Thu, 07 Aug 2008 07:07:59 GMT; Secure'
       )
     end
-    let (:cookies2) { Marisa::Cookie::Response.parse(cookies1[0]) }
     it { expect(cookies1[0].name).to eq('foo') }
     it { expect(cookies1[0].value).to eq('b ,a" r"\\') }
     it { expect(cookies1[0].domain).to eq('example.com') }
@@ -335,6 +326,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies1[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies1[0].secure).to eq(1) }
     it { expect(cookies1[1]).to be_nil }
+    let (:cookies2) { Marisa::Cookie::Response.parse(cookies1[0]) }
     it { expect(cookies2[0].name).to eq('foo') }
     it { expect(cookies2[0].value).to eq('b ,a" r"\\') }
     it { expect(cookies2[0].domain).to eq('example.com') }
@@ -351,7 +343,6 @@ describe 'Marisa::Cookie::Response' do
           'foo="b ;a\" r\"\\\\"; Domain=example.com; Path=/test; Max-Age=60; Expires=Thu, 07 Aug 2008 07:07:59 GMT;  Secure'
       )
     end
-    let (:cookies2) { Marisa::Cookie::Response.parse(cookies1[0]) }
     it { expect(cookies1[0].name).to eq('foo') }
     it { expect(cookies1[0].value).to eq('b ;a" r"\\') }
     it { expect(cookies1[0].domain).to eq('example.com') }
@@ -360,6 +351,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies1[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies1[0].secure).to eq(1) }
     it { expect(cookies1[1]).to be_nil }
+    let (:cookies2) { Marisa::Cookie::Response.parse(cookies1[0]) }
     it { expect(cookies2[0].name).to eq('foo') }
     it { expect(cookies2[0].value).to eq('b ;a" r"\\') }
     it { expect(cookies2[0].domain).to eq('example.com') }
@@ -396,7 +388,7 @@ describe 'Marisa::Cookie::Response' do
   end
 
   context 'Parse response cookie without value (RFC 2965)' do
-    context '1' do
+    context do
       subject (:cookies) do
         Marisa::Cookie::Response.parse(
             'foo=""; Version=1; Domain=example.com; Path=/test; Max-Age=60; expires=Thu, 07 Aug 2008 07:07:59 GMT; Secure'
@@ -412,7 +404,7 @@ describe 'Marisa::Cookie::Response' do
       it { expect(cookies[0].to_s).to eq('foo=; expires=Thu, 07 Aug 2008 07:07:59 GMT; domain=example.com; path=/test; secure; Max-Age=60') }
       it { expect(cookies[1]).to be_nil }
     end
-    context '2' do
+    context do
       subject (:cookies) do
         Marisa::Cookie::Response.parse(
             'foo=; Version=1; Domain=example.com; Path=/test; Max-Age=60; expires=Thu, 07 Aug 2008 07:07:59 GMT; Secure'
@@ -431,13 +423,13 @@ describe 'Marisa::Cookie::Response' do
   end
 
   context 'Parse response cookie with broken Expires value' do
-    context '1' do
+    context do
       subject (:cookies) { Marisa::Cookie::Response.parse('foo="ba r"; Expires=Th') }
       it { expect(cookies[0].name).to eq('foo') }
       it { expect(cookies[0].value).to eq('ba r') }
       it { expect(cookies[1]).to be_nil }
     end
-    context '2' do
+    context do
       subject (:cookies) { Marisa::Cookie::Response.parse('foo="ba r"; Expires=Th; Path=/test') }
       it { expect(cookies[0].name).to eq('foo') }
       it { expect(cookies[0].value).to eq('ba r') }
@@ -474,7 +466,7 @@ describe 'Marisa::Cookie::Response' do
   end
 
   context 'Parse response cookie with two digit year (RFC 6265)' do
-    context '1' do
+    context do
       subject (:cookies) do
         Marisa::Cookie::Response.parse(
             'foo=bar; Path=/; Expires=Saturday, 09-Nov-19 23:12:40 GMT; Secure'
@@ -487,7 +479,7 @@ describe 'Marisa::Cookie::Response' do
       it { expect(cookies[0].secure).to eq(1) }
       it { expect(cookies[1]).to be_nil }
     end
-    context '2' do
+    context do
       subject (:cookies) do
         Marisa::Cookie::Response.parse(
             'foo=bar; Path=/; Expires=Tuesday, 09-Nov-99 23:12:40 GMT; Secure'
