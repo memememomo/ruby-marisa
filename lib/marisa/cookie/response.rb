@@ -16,7 +16,7 @@ module Marisa
 
       def self.parse(str='')
         cookies = []
-        tree = Marisa::Util.split_header(str)
+        tree = Marisa::Util.split_header(str.to_s)
         while tree.length > 0
           pairs = tree.shift
           i = 0
@@ -40,7 +40,7 @@ module Marisa
 
             # Attributes (Netscape and RFC 6265)
             next if /^(expires|domain|path|secure|max-age|httponly)$/i !~ name
-            attr = $1
+            attr = $1.downcase
             attr = 'max_age' if attr == 'max-age'
             cookies[-1].__send__(attr+'=', (attr == 'secure' || attr == 'httponly' ? 1 : value))
           end

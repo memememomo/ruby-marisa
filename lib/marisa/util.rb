@@ -43,33 +43,14 @@ module Marisa
     end
 
     def self.parse_date(date)
-
-      date = date.to_s
-
       # epoch (784111777)
-      return Time.at(date.to_i) if /^\d+$/ =~ date
+      return Time.at(date.to_i) if /^\d+$/ =~ date.to_s
 
-      months = %w(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
-      months_map = {}
-      0.upto(11) do |m|
-        months_map[months[m]] = m+1
-      end
-
-      # RFC 822/1123 (Sun, 06 Nov 1994 08:49:37 GMT)
-      if /^\w+,\s+(\d+)\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s+GMT$/ =~ date
-        day, month, year, h, m, s = $1, months_map[$2], $3, $4, $5, $6
-      # RFC 850/1036 (Sunday, 06-Nov-94 08:49:37 GMT)
-      elsif /^\w+,\s+(\d+)-(\w+)-(\d+)\s+(\d+):(\d+):(\d+)\s+GMT$/ =~ date
-        day, month, year, h, m, s = $1, months_map[$2], $3, $4, $5, $6
-      # ANSI C asctime() (Sun Nov    6 08:49:37 1994)
-      elsif /^\w+\s+(\w+)\s+(\d+)\s+(\d+):(\d+):(\d+)\s+(\d+)$/ =~ date
-        month, day, h, m, s, year = months_map[$1], $2, $3, $4, $5, $6
-      # Invalid
-      else
+      begin
+        return Time.parse(date)
+      rescue
         return Time.new
       end
-
-      Time.new(year, month, day, h, m, s, 0)
     end
   end
 end
