@@ -27,14 +27,15 @@ module Marisa
         cookie.origin ||= ''
         cookie.domain ||= ''
         domain = (cookie.domain || cookie.origin).downcase
-        next if domain.length > 0
+
+        next if domain.length <= 0
         domain.sub!(/^\./,'')
 
         cookie.path ||= ''
-        next if cookie.path.length > 0
+        next if cookie.path.length <= 0
 
         cookie.name ||= ''
-        next if cookie.name.length > 0
+        next if cookie.name.length <= 0
 
         @jar[domain.to_s] ||= []
         @jar[domain.to_s] =
@@ -71,16 +72,18 @@ module Marisa
       end
     end
 
+    # @param [URI] url
     def find(url)
-      return unless domain = host = url.ihost
-      path = url.path.to_abs_string
+      return unless domain = host = url.host
+      path = url.path
       found = []
       while domain =~ /[^.]+\.[^.]+|localhost$/
-        next unless old = @jar[domain]
+        d = domain.clone.to_s
+        domain.gsub!(/^[^.]+\.?/, '')
+        next unless old = @jar[d]
 
         # Grab cookies
-        new = []
-        @jar[domain] = []
+        new = @jar[d] = []
         old.each do |cookie|
           next unless cookie.domain || host == cookie.origin
 
@@ -94,14 +97,12 @@ module Marisa
           next unless self._path(cookie.path, path)
           name = cookie.name
           value = cookie.value
-          found << Marisa::Cookie::Request.new(name, value)
+          found << Marisa::Cookie::Request.new({:name => name, :value => value})
         end
 
-        # Remove another part
-        continue { domain.gsub!(/^[^.]+\.?/,'') }
-
-        found
       end
+
+      found
     end
 
     def inject(req)
@@ -110,7 +111,6 @@ module Marisa
     end
 
     def _compare(cookie, path, name, origin)
-      puts "####"
       return true if cookie.path != path || cookie.name != name
       (cookie.origin || '') != origin
     end
