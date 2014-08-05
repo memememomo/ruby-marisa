@@ -4,9 +4,9 @@ module Marisa
     class Base
       attr_accessor :name, :value
 
-      def initialize(name=nil, value=nil)
-        self.name = name
-        self.value = value
+      def initialize(args={})
+        self.name = args[:name] || nil
+        self.value = args[:value] || nil
       end
 
       def parse(str)

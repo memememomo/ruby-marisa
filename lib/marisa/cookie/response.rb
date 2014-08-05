@@ -7,6 +7,16 @@ module Marisa
     class Response < Marisa::Cookie::Base
       attr_accessor :domain, :httponly, :max_age, :origin, :path, :secure
 
+      def initialize(args={})
+        super(args)
+        self.domain = args[:domain] || nil
+        self.httponly = args[:httponly] || nil
+        self.max_age = args[:max_age] || nil
+        self.origin = args[:origin] || nil
+        self.path = args[:path] || nil
+        self.secure = args[:secure] || nil
+      end
+
       def expires=(val)
         @expires = val.class == 'Marisa::Date' ? val : Marisa::Date.parse(val)
       end
@@ -35,7 +45,7 @@ module Marisa
             # This will only run once
             if i == 0
               i += 1
-              cookies << Response.new(name, value)
+              cookies << Response.new({:name => name, :value => value})
               next
             end
 

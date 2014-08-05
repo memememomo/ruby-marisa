@@ -3,48 +3,57 @@ require 'marisa/cookie/request'
 
 module Marisa
   class CookieJar
-    @max_cookie_size = 4096
-    @jar = {}
+
+    def initialize
+      @max_cookie_size = 4096
+      @jar = {}
+    end
 
     # @param [Array<Marisa::Cookie::Request>] cookies
-    def add(cookies=[])
+    # @return [Marisa::CookieJar]
+    def add(*cookies)
       size = @max_cookie_size
 
       cookies.each do |cookie|
         # Convert max age to expires
         if cookie.max_age
-          cookie.expires = cookie.max_age + Time.now
+          cookie.expires = cookie.max_age.to_i + Time.now.to_i
         end
 
         # Check cookie size
-        next if cookie.value.length > size
+        next if (cookie.value || '').length > size
 
         # Replace cookie
-        origin = cookie.origin || ''
-        domain = (cookie.domain || origin).downcase
-        next unless domain
-        domain.sub(/^\./,'')
-        path = cookie.path
-        next unless path
-        name = cookie.name || ''
-        next unless name.length
-        jar = @jar[domain] ||= []
-        @jar[domain] = jar.select {|j| self._compare(j, path, name, origin) }.push(cookie)
+        cookie.origin ||= ''
+        cookie.domain ||= ''
+        domain = (cookie.domain || cookie.origin).downcase
+        next if domain.length > 0
+        domain.sub!(/^\./,'')
+
+        cookie.path ||= ''
+        next if cookie.path.length > 0
+
+        cookie.name ||= ''
+        next if cookie.name.length > 0
+
+        @jar[domain.to_s] ||= []
+        @jar[domain.to_s] =
+            @jar[domain.to_s].select {|j| self._compare(j, cookie.path, cookie.name, cookie.origin) }.push(cookie)
       end
 
       self
     end
 
     def all
-      @jar.keys.sort.map {|k| @jar[k] }
+      @jar.keys.sort.map {|k| @jar[k] }.flatten
     end
 
     def empty
       @jar = {}
     end
 
-    # @param [Net::HTTP::Request] req
-    # @param [Net::HTTP::Response] res
+    # @param [Marisa::Request] req
+    # @param [Marisa::Response] res
     def extract(req, res)
       url = req.url
       res.cookies.each do |cookie|
@@ -77,7 +86,7 @@ module Marisa
 
           # Check if cookie has expired
           expires = cookie.expires
-          next if expires && time > (expires.epoch || 0)
+          next if expires && Time.now.to_i > (expires.to_i || 0)
           new << cookie
 
           # Taste cookie
@@ -95,13 +104,14 @@ module Marisa
       end
     end
 
-    def inject(req, res)
+    def inject(req)
       return unless @jar.keys.length > 0
       req.cookies(self.find(req.url))
     end
 
     def _compare(cookie, path, name, origin)
-      return 1 if cookie.path != path || cookie.name != name
+      puts "####"
+      return true if cookie.path != path || cookie.name != name
       (cookie.origin || '') != origin
     end
 

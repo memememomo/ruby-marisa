@@ -17,7 +17,7 @@ module Marisa
             n = attr[0]
             v = attr[1]
             next if n =~ /^\$/
-            cookies.push(Request.new(n, v))
+            cookies.push(Request.new({:name => n, :value => v}))
           end
         end
         cookies
