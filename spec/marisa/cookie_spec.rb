@@ -204,7 +204,7 @@ describe 'Marisa::Cookie::Response' do
     end
     it { expect(cookies[0].name).to eq('CUSTOMER') }
     it { expect(cookies[0].value).to eq('WILE_E_COYOTE') }
-    it { expect(cookies[0].expires).to eq('Tue, 09 Nov 1999 23:12:40 GMT') }
+    it { expect(cookies[0].expires.to_s).to eq('Tue, 09 Nov 1999 23:12:40 GMT') }
     it { expect(cookies[1]).to be_nil }
   end
 
@@ -216,10 +216,10 @@ describe 'Marisa::Cookie::Response' do
     end
     it { expect(cookies[0].name).to eq('CUSTOMER') }
     it { expect(cookies[0].value).to eq('WILE_E_COYOTE') }
-    it { expect(cookies[0].expires).to eq('Tue, 09 Nov 1999 23:12:40 GMT') }
+    it { expect(cookies[0].expires.to_s).to eq('Tue, 09 Nov 1999 23:12:40 GMT') }
     it { expect(cookies[1].name).to eq('SHIPPING') }
     it { expect(cookies[1].value).to eq('FEDEX') }
-    it { expect(cookies[1].expires).to eq('Tue, 09 Nov 1999 23:12:41 GMT') }
+    it { expect(cookies[1].expires.to_s).to eq('Tue, 09 Nov 1999 23:12:41 GMT') }
     it { expect(cookies[2]).to be_nil }
   end
 
@@ -234,7 +234,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies[0].domain).to eq('example.com') }
     it { expect(cookies[0].path).to eq('/test') }
     it { expect(cookies[0].max_age).to eq('60') }
-    it { expect(cookies[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies[0].secure).to eq(1) }
     it { expect(cookies[1]).to be_nil }
   end
@@ -250,7 +250,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies[0].domain).to eq('example.com') }
     it { expect(cookies[0].path).to eq('/test') }
     it { expect(cookies[0].max_age).to eq('60') }
-    it { expect(cookies[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies[0].secure).to be_nil }
     it { expect(cookies[1]).to be_nil }
   end
@@ -266,7 +266,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies[0].domain).to eq('example.com') }
     it { expect(cookies[0].path).to eq('/test') }
     it { expect(cookies[0].max_age).to eq('60') }
-    it { expect(cookies[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies[0].secure).to eq(1) }
     it { expect(cookies[1]).to be_nil }
   end
@@ -282,7 +282,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies[0].domain).to eq('example.com') }
     it { expect(cookies[0].path).to eq('/test') }
     it { expect(cookies[0].max_age).to eq('60') }
-    it { expect(cookies[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies[0].secure).to eq(1) }
     it { expect(cookies[1]).to be_nil }
   end
@@ -298,7 +298,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies1[0].domain).to eq('example.com') }
     it { expect(cookies1[0].path).to eq('/test') }
     it { expect(cookies1[0].max_age).to eq('60') }
-    it { expect(cookies1[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies1[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies1[0].secure).to eq(1) }
     it { expect(cookies1[1]).to be_nil }
     let (:cookies2) { Marisa::Cookie::Response.parse(cookies1[0]) }
@@ -307,7 +307,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies2[0].domain).to eq('example.com') }
     it { expect(cookies2[0].path).to eq('/test') }
     it { expect(cookies2[0].max_age).to eq('60') }
-    it { expect(cookies2[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies2[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies2[0].secure).to eq(1) }
     it { expect(cookies2[1]).to be_nil }
   end
@@ -323,7 +323,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies1[0].domain).to eq('example.com') }
     it { expect(cookies1[0].path).to eq('/test') }
     it { expect(cookies1[0].max_age).to eq('60') }
-    it { expect(cookies1[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies1[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies1[0].secure).to eq(1) }
     it { expect(cookies1[1]).to be_nil }
     let (:cookies2) { Marisa::Cookie::Response.parse(cookies1[0]) }
@@ -332,7 +332,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies2[0].domain).to eq('example.com') }
     it { expect(cookies2[0].path).to eq('/test') }
     it { expect(cookies2[0].max_age).to eq('60') }
-    it { expect(cookies2[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies2[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies2[0].secure).to eq(1) }
     it { expect(cookies2[1]).to be_nil }
   end
@@ -348,7 +348,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies1[0].domain).to eq('example.com') }
     it { expect(cookies1[0].path).to eq('/test') }
     it { expect(cookies1[0].max_age).to eq('60') }
-    it { expect(cookies1[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies1[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies1[0].secure).to eq(1) }
     it { expect(cookies1[1]).to be_nil }
     let (:cookies2) { Marisa::Cookie::Response.parse(cookies1[0]) }
@@ -357,7 +357,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies2[0].domain).to eq('example.com') }
     it { expect(cookies2[0].path).to eq('/test') }
     it { expect(cookies2[0].max_age).to eq('60') }
-    it { expect(cookies2[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies2[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies2[0].secure).to eq(1) }
     it { expect(cookies2[1]).to be_nil }
   end
@@ -374,7 +374,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies1[0].domain).to eq('example.com') }
     it { expect(cookies1[0].path).to eq('/test') }
     it { expect(cookies1[0].max_age).to eq('60') }
-    it { expect(cookies1[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies1[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies1[0].secure).to eq(1) }
     it { expect(cookies1[1]).to be_nil }
     it { expect(cookies2[0].name).to eq('foo') }
@@ -382,7 +382,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies2[0].domain).to eq('example.com') }
     it { expect(cookies2[0].path).to eq('/test') }
     it { expect(cookies2[0].max_age).to eq('60') }
-    it { expect(cookies2[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+    it { expect(cookies2[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
     it { expect(cookies2[0].secure).to eq(1) }
     it { expect(cookies2[1]).to be_nil }
   end
@@ -399,7 +399,7 @@ describe 'Marisa::Cookie::Response' do
       it { expect(cookies[0].domain).to eq('example.com') }
       it { expect(cookies[0].path).to eq('/test') }
       it { expect(cookies[0].max_age).to eq('60') }
-      it { expect(cookies[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+      it { expect(cookies[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
       it { expect(cookies[0].secure).to eq(1) }
       it { expect(cookies[0].to_s).to eq('foo=; expires=Thu, 07 Aug 2008 07:07:59 GMT; domain=example.com; path=/test; secure; Max-Age=60') }
       it { expect(cookies[1]).to be_nil }
@@ -415,7 +415,7 @@ describe 'Marisa::Cookie::Response' do
       it { expect(cookies[0].domain).to eq('example.com') }
       it { expect(cookies[0].path).to eq('/test') }
       it { expect(cookies[0].max_age).to eq('60') }
-      it { expect(cookies[0].expires).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
+      it { expect(cookies[0].expires.to_s).to eq('Thu, 07 Aug 2008 07:07:59 GMT') }
       it { expect(cookies[0].secure).to eq(1) }
       it { expect(cookies[0].to_s).to eq('foo=; expires=Thu, 07 Aug 2008 07:07:59 GMT; domain=example.com; path=/test; secure; Max-Age=60') }
       it { expect(cookies[1]).to be_nil }
@@ -460,7 +460,7 @@ describe 'Marisa::Cookie::Response' do
     it { expect(cookies[0].domain).to eq('example.com') }
     it { expect(cookies[0].path).to eq('/') }
     it { expect(cookies[0].max_age).to eq('0') }
-    it { expect(cookies[0].expires).to eq('Thu, 01 Jan 1970 00:00:00 GMT') }
+    it { expect(cookies[0].expires.to_s).to eq('Thu, 01 Jan 1970 00:00:00 GMT') }
     it { expect(cookies[0].secure).to eq(1) }
     it { expect(cookies[1]).to be_nil }
   end
@@ -475,7 +475,7 @@ describe 'Marisa::Cookie::Response' do
       it { expect(cookies[0].name).to eq('foo') }
       it { expect(cookies[0].value).to eq('bar') }
       it { expect(cookies[0].path).to eq('/') }
-      it { expect(cookies[0].expires).to eq('Sat, 09 Nov 2019 23:12:40 GMT') }
+      it { expect(cookies[0].expires.to_s).to eq('Sat, 09 Nov 2019 23:12:40 GMT') }
       it { expect(cookies[0].secure).to eq(1) }
       it { expect(cookies[1]).to be_nil }
     end
@@ -488,7 +488,7 @@ describe 'Marisa::Cookie::Response' do
       it { expect(cookies[0].name).to eq('foo') }
       it { expect(cookies[0].value).to eq('bar') }
       it { expect(cookies[0].path).to eq('/') }
-      it { expect(cookies[0].expires).to eq('Tue, 09 Nov 1999 23:12:40 GMT') }
+      it { expect(cookies[0].expires.to_s).to eq('Tue, 09 Nov 1999 23:12:40 GMT') }
       it { expect(cookies[0].secure).to eq(1) }
       it { expect(cookies[1]).to be_nil }
     end

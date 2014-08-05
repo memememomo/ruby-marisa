@@ -1,5 +1,6 @@
 require 'marisa/cookie'
 require 'marisa/util'
+require 'marisa/date'
 
 module Marisa
   module Cookie
@@ -7,11 +8,11 @@ module Marisa
       attr_accessor :domain, :httponly, :max_age, :origin, :path, :secure
 
       def expires=(val)
-        @expires = val.class == 'Time' ? val : Marisa::Util.parse_date(val)
+        @expires = val.class == 'Marisa::Date' ? val : Marisa::Date.parse(val)
       end
 
       def expires
-        @expires.nil? ? nil : @expires.httpdate
+        @expires.nil? ? nil : @expires
       end
 
       def self.parse(str='')

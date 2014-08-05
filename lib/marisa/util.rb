@@ -41,16 +41,5 @@ module Marisa
       str.gsub!(/\\"/, "\"")
       str
     end
-
-    def self.parse_date(date)
-      # epoch (784111777)
-      return Time.at(date.to_i) if /^\d+$/ =~ date.to_s
-
-      begin
-        return Time.parse(date)
-      rescue
-        return Time.new
-      end
-    end
   end
 end
