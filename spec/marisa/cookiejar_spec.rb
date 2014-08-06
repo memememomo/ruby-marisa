@@ -180,4 +180,180 @@ describe Marisa::CookieJar do
       expect(cookies[2]).to be_nil
     end
   end
+
+  context 'Expired cookies' do
+    it do
+      jar.add(
+          Marisa::Cookie::Response.new(
+              {
+                  :domain => 'example.com',
+                  :path   => '/foo',
+                  :name   => 'foo',
+                  :value  => 'bar',
+              }
+          ),
+          Marisa::Cookie::Response.new(
+              {
+                  :domain  => 'labs.example.com',
+                  :path    => '/',
+                  :name    => 'baz',
+                  :value   => '24',
+                  :max_age => -1,
+              }
+          )
+      )
+
+      expired         = Marisa::Cookie::Response.new(
+          {
+              :domain => 'labs.example.com',
+              :path   => '/',
+              :name   => 'baz',
+              :value  => '23',
+          }
+      )
+      expired.expires = Time.now.to_i - 1
+      jar.add(expired)
+
+      cookies = jar.find(URI.parse('http://labs.example.com/foo'))
+      expect(cookies[0].name).to eq('foo')
+      expect(cookies[0].value).to eq('bar')
+      expect(cookies[1]).to be_nil
+    end
+  end
+
+  context 'Replace cookie' do
+    it do
+      jar.add(
+          Marisa::Cookie::Response.new(
+              {
+                  :domain => 'example.com',
+                  :path   => '/foo',
+                  :name   => 'foo',
+                  :value  => 'bar1',
+              }
+          ),
+          Marisa::Cookie::Response.new(
+              {
+                  :domain => 'example.com',
+                  :path   => '/foo',
+                  :name   => 'foo',
+                  :value  => 'bar2',
+              }
+          )
+      )
+      cookies = jar.find(URI.parse('http://example.com/foo'))
+      expect(cookies[0].name).to eq('foo')
+      expect(cookies[0].value).to eq('bar2')
+      expect(cookies[1]).to be_nil
+    end
+  end
+
+  context 'Switch between secure and normal cookies' do
+    it do
+      jar.add(
+          Marisa::Cookie::Response.new(
+              {
+                  :domain => 'example.com',
+                  :path   => '/foo',
+                  :name   => 'foo',
+                  :value  => 'foo',
+                  :secure => 1,
+              }
+          )
+      )
+      cookies = jar.find(URI.parse('https://example.com/foo'))
+      expect(cookies[0].name).to eq('foo')
+      expect(cookies[0].value).to eq('foo')
+      cookies = jar.find(URI.parse('http://example.com/foo'))
+      expect(cookies.length).to eq(0)
+
+      jar.add(
+          Marisa::Cookie::Response.new(
+              {
+                  :domain => 'example.com',
+                  :path   => '/foo',
+                  :name   => 'foo',
+                  :value  => 'bar',
+              }
+          )
+      )
+      cookies = jar.find(URI.parse('http://example.com/foo'))
+      expect(cookies[0].name).to eq('foo')
+      expect(cookies[0].value).to eq('bar')
+      cookies = jar.find(URI.parse('https://example.com/foo'))
+      expect(cookies[0].name).to eq('foo')
+      expect(cookies[0].value).to eq('bar')
+      expect(cookies[1]).to be_nil
+    end
+  end
+  context 'Ignore leading dot' do
+    it do
+      jar.add(
+          Marisa::Cookie::Response.new(
+              {
+                  :domain => '.example.com',
+                  :path   => '/foo',
+                  :name   => 'foo',
+                  :value  => 'bar',
+              }
+          ),
+          Marisa::Cookie::Response.new(
+              {
+                  :domain => 'example.com',
+                  :path   => '/foo',
+                  :name   => 'bar',
+                  :value  => 'baz',
+              }
+          )
+      )
+      cookies = jar.find(URI.parse('http://www.labs.example.com/foo'))
+      expect(cookies[0].name).to eq('foo')
+      expect(cookies[0].value).to eq('bar')
+      expect(cookies[1].name).to eq('bar')
+      expect(cookies[1].value).to eq('baz')
+      expect(cookies[2]).to be_nil
+
+      cookies = jar.find(URI.parse('http://labs.example.com/foo'))
+      expect(cookies[0].name).to eq('foo')
+      expect(cookies[0].value).to eq('bar')
+      expect(cookies[1].name).to eq('bar')
+      expect(cookies[1].value).to eq('baz')
+      expect(cookies[2]).to be_nil
+
+      cookies = jar.find(URI.parse('http://example.com/foo/bar'))
+      expect(cookies[0].name).to eq('foo')
+      expect(cookies[0].value).to eq('bar')
+      expect(cookies[1].name).to eq('bar')
+      expect(cookies[1].value).to eq('baz')
+      expect(cookies[2]).to be_nil
+
+      cookies = jar.find(URI.parse('http://example.com/foobar'))
+      expect(cookies[0]).to be_nil
+    end
+  end
+
+  context '"(" in path' do
+    it do
+      jar.add(
+          Marisa::Cookie::Response.new(
+              {
+                  :domain => 'example.com',
+                  :path   => '/foo(bar',
+                  :name   => 'foo',
+                  :value  => 'bar',
+              }
+          )
+      )
+
+      cookies = jar.find(URI.parse('http://example.com/foo(bar'))
+      expect(cookies[0].name).to eq('foo')
+      expect(cookies[0].value).to eq('bar')
+      expect(cookies[1]).to be_nil
+
+      cookies = jar.find(URI.parse('http://example.com/foo(bar/baz'))
+      expect(cookies[0].name).to eq('foo')
+      expect(cookies[0].value).to eq('bar')
+      expect(cookies[1]).to be_nil
+    end
+  end
 end
