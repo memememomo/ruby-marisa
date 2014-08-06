@@ -6,7 +6,7 @@ module Marisa
     class Request < Marisa::Cookie::Base
       def self.parse(str='')
         cookies = []
-        pairs = []
+        pairs   = []
         Marisa::Util.split_header(str).each do |s|
           s.each do |s2|
             pairs.push(s2)
@@ -30,7 +30,7 @@ module Marisa
         if v =~ /[,;" ]/
           v = Marisa::Util.quote(v)
         end
-        [n,v].join('=')
+        [n, v].join('=')
       end
     end
   end

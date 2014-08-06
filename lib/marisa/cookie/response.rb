@@ -9,12 +9,12 @@ module Marisa
 
       def initialize(args={})
         super(args)
-        self.domain = args[:domain] || nil
+        self.domain   = args[:domain] || nil
         self.httponly = args[:httponly] || nil
-        self.max_age = args[:max_age] || nil
-        self.origin = args[:origin] || nil
-        self.path = args[:path] || nil
-        self.secure = args[:secure] || nil
+        self.max_age  = args[:max_age] || nil
+        self.origin   = args[:origin] || nil
+        self.path     = args[:path] || nil
+        self.secure   = args[:secure] || nil
       end
 
       def expires=(val)
@@ -27,19 +27,19 @@ module Marisa
 
       def self.parse(str='')
         cookies = []
-        tree = Marisa::Util.split_header(str.to_s)
+        tree    = Marisa::Util.split_header(str.to_s)
         while tree.length > 0
           pairs = tree.shift
-          i = 0
+          i     = 0
           while pairs.length > 0
-            name = pairs.shift
+            name  = pairs.shift
             value = pairs.shift
 
             # "expires" is a special case, thank you Netscape...
             if /^expires$/i =~ name
               pairs += tree.shift || []
-              len = /-/ =~ (pairs[0] || '') ? 6 : 10
-              value += pairs.slice(0, len).select {|n| n != nil }.unshift(',').join(' ')
+              len   = /-/ =~ (pairs[0] || '') ? 6 : 10
+              value += pairs.slice(0, len).select { |n| n != nil }.unshift(',').join(' ')
             end
 
             # This will only run once
@@ -63,7 +63,7 @@ module Marisa
       def to_s
         # Name and value (Netscape)
         return '' unless self.name.length
-        value = self.value || ''
+        value  = self.value || ''
         cookie = [name, value =~ /[,;" ]/ ? Marisa::Util.quote(value) : value].join('=')
 
         # "expires" (Netscape)

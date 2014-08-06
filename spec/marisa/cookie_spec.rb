@@ -8,7 +8,7 @@ describe 'Marisa::Cookie::Request' do
 
   context 'Request cookie as string' do
     it do
-      req.name = '0'
+      req.name  = '0'
       req.value = 'ba =r'
       expect(req.to_s).to eq('0="ba =r"')
     end
@@ -21,7 +21,7 @@ describe 'Marisa::Cookie::Request' do
     end
 
     it do
-      req.name = 'foo'
+      req.name  = 'foo'
       req.value = ''
       expect(req.to_s).to eq('foo=')
     end
@@ -34,14 +34,14 @@ describe 'Marisa::Cookie::Request' do
   end
 
   context 'Parse normal request cookie (RFC 2965)' do
-    subject(:cookies) { Marisa::Cookie::Request.parse('$Version=1; foo=bar; $Path="/test"')}
+    subject(:cookies) { Marisa::Cookie::Request.parse('$Version=1; foo=bar; $Path="/test"') }
     it { expect(cookies[0].name).to eq('foo') }
     it { expect(cookies[0].value).to eq('bar') }
     it { expect(cookies[1]).to be_nil }
   end
 
   context 'Parse request cookies from multiple header value (RFC 2965)' do
-    subject(:cookies) { Marisa::Cookie::Request.parse('$Version=1; foo=bar; $Path="/test", $Version=0; baz=yada; $Path="/test"')}
+    subject(:cookies) { Marisa::Cookie::Request.parse('$Version=1; foo=bar; $Path="/test", $Version=0; baz=yada; $Path="/test"') }
     it { expect(cookies[0].name).to eq('foo') }
     it { expect(cookies[0].value).to eq('bar') }
     it { expect(cookies[1].name).to eq('baz') }
@@ -108,7 +108,7 @@ describe 'Marisa::Cookie::Request' do
   end
 
   context 'Parse quoted request cookie roundtrip (RFC 2965, alternative)' do
-    let (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="b ,a\" r\"\\\\"; $Path="/test"')}
+    let (:cookies1) { Marisa::Cookie::Request.parse('$Version=1; foo="b ,a\" r\"\\\\"; $Path="/test"') }
     it { expect(cookies1[0].name).to eq('foo') }
     it { expect(cookies1[0].value).to eq('b ,a" r"\\') }
     it { expect(cookies1[1]).to be_nil }
@@ -153,10 +153,10 @@ end
 describe 'Marisa::Cookie::Response' do
   context 'Response cookie as string' do
     subject (:cookies) do
-      cookies = Marisa::Cookie::Response.new
-      cookies.name = 'foo'
+      cookies       = Marisa::Cookie::Response.new
+      cookies.name  = 'foo'
       cookies.value = 'ba r'
-      cookies.path = '/test'
+      cookies.path  = '/test'
       cookies
     end
     it { expect(cookies.to_s).to eq('foo="ba r"; path=/test') }
@@ -164,31 +164,31 @@ describe 'Marisa::Cookie::Response' do
 
   context 'Response cookie without value as string' do
     it do
-      cookies = Marisa::Cookie::Response.new
+      cookies      = Marisa::Cookie::Response.new
       cookies.name = 'foo'
       cookies.path = '/test'
       expect(cookies.to_s).to eq('foo=; path=/test')
     end
 
     it do
-      cookies = Marisa::Cookie::Response.new
-      cookies.name = 'foo'
+      cookies       = Marisa::Cookie::Response.new
+      cookies.name  = 'foo'
       cookies.value = ''
-      cookies.path = '/test'
+      cookies.path  = '/test'
       expect(cookies.to_s).to eq('foo=; path=/test')
     end
   end
 
   context 'Full response cookie as string' do
     it do
-      cookies = Marisa::Cookie::Response.new
-      cookies.name = '0'
-      cookies.value = 'ba r'
-      cookies.domain = 'example.com'
-      cookies.path = '/test'
-      cookies.max_age = 60
-      cookies.expires = 1218092879
-      cookies.secure = 1
+      cookies          = Marisa::Cookie::Response.new
+      cookies.name     = '0'
+      cookies.value    = 'ba r'
+      cookies.domain   = 'example.com'
+      cookies.path     = '/test'
+      cookies.max_age  = 60
+      cookies.expires  = 1218092879
+      cookies.secure   = 1
       cookies.httponly = 1
       expect(cookies.to_s).to eq('0="ba r"; expires=Thu, 07 Aug 2008 07:07:59 GMT; domain=example.com; path=/test; secure; Max-Age=60; HttpOnly')
     end
@@ -439,10 +439,10 @@ describe 'Marisa::Cookie::Response' do
 
   context 'Response cookie with Max-Age 0 and Expires 0' do
     it do
-      cookie = Marisa::Cookie::Response.new
-      cookie.name = 'foo'
-      cookie.value = 'bar'
-      cookie.path = '/'
+      cookie         = Marisa::Cookie::Response.new
+      cookie.name    = 'foo'
+      cookie.value   = 'bar'
+      cookie.path    = '/'
       cookie.max_age = 0
       cookie.expires = 0
       expect(cookie.to_s).to eq('foo=bar; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; Max-Age=0')

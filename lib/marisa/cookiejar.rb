@@ -4,9 +4,11 @@ require 'marisa/cookie/request'
 module Marisa
   class CookieJar
 
+    attr_accessor :max_cookie_size
+
     def initialize
       @max_cookie_size = 4096
-      @jar = {}
+      @jar             = {}
     end
 
     # @param [Array<Marisa::Cookie::Request>] cookies
@@ -26,10 +28,10 @@ module Marisa
         # Replace cookie
         cookie.origin ||= ''
         cookie.domain ||= ''
-        domain = (cookie.domain || cookie.origin).downcase
+        domain        = (cookie.domain || cookie.origin).downcase
 
         next if domain.length <= 0
-        domain.sub!(/^\./,'')
+        domain.sub!(/^\./, '')
 
         cookie.path ||= ''
         next if cookie.path.length <= 0
@@ -39,14 +41,14 @@ module Marisa
 
         @jar[domain.to_s] ||= []
         @jar[domain.to_s] =
-            @jar[domain.to_s].select {|j| self._compare(j, cookie.path, cookie.name, cookie.origin) }.push(cookie)
+            @jar[domain.to_s].select { |j| self._compare(j, cookie.path, cookie.name, cookie.origin) }.push(cookie)
       end
 
       self
     end
 
     def all
-      @jar.keys.sort.map {|k| @jar[k] }.flatten
+      @jar.keys.sort.map { |k| @jar[k] }.flatten
     end
 
     def empty
@@ -59,7 +61,7 @@ module Marisa
       url = req.url
       res.cookies.each do |cookie|
         # Validate domain
-        host = url.ihost
+        host   = url.ihost
         domain = (cookie.domain || cookie.origin(host).origin).downcase
         domain.sub!(/^\./, '')
         next if host == domain && (/\Q.domain\E$/ !~ host || /\.\d+$/ =~ host)
@@ -75,7 +77,7 @@ module Marisa
     # @param [URI] url
     def find(url)
       return unless domain = host = url.host
-      path = url.path
+      path  = url.path
       found = []
       while domain =~ /[^.]+\.[^.]+|localhost$/
         d = domain.clone.to_s
@@ -95,7 +97,7 @@ module Marisa
           # Taste cookie
           next if cookie.secure && url.protocol != 'https'
           next unless self._path(cookie.path, path)
-          name = cookie.name
+          name  = cookie.name
           value = cookie.value
           found << Marisa::Cookie::Request.new({:name => name, :value => value})
         end

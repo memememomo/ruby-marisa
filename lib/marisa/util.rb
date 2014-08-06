@@ -8,7 +8,7 @@ module Marisa
     end
 
     def self.split_header(str)
-      tree = []
+      tree  = []
       token = []
       while str.length != 0
         str.sub!(/^[,;\s]*([^=;, ]+)\s*/, '')
@@ -21,7 +21,7 @@ module Marisa
 
         # Separator
         str.sub!(/^;\s*/, '')
-        next unless str.sub!(/^,\s*/,'')
+        next unless str.sub!(/^,\s*/, '')
         tree.push(token)
         token = []
       end
