@@ -27,7 +27,6 @@ module Marisa
 
         # Replace cookie
         cookie.origin ||= ''
-        cookie.domain ||= ''
         domain        = (cookie.domain || cookie.origin).downcase
 
         next if domain.length <= 0
@@ -61,33 +60,38 @@ module Marisa
       url = req.url
       res.cookies.each do |cookie|
         # Validate domain
-        host   = url.ihost
-        domain = (cookie.domain || cookie.origin(host).origin).downcase
+        host          = url.host
+        cookie.origin = host
+        domain        = (cookie.domain || cookie.origin).downcase
         domain.sub!(/^\./, '')
-        next if host == domain && (/\Q.domain\E$/ !~ host || /\.\d+$/ =~ host)
+        next if host != domain && (/#{Regexp.escape(domain)}$/ !~ host || /\.\d+$/ =~ host)
 
         # Validate path
-        path = cookie.path || url.path.to_dir.to_abs_string
+        path        = cookie.path || File.dirname(url.path)
+        cookie.path ||= path
         # $path = Mojo::Path->new($path)->trailing_slash(0)->to_abs_string;
-        next unless self._path(path, url.path.to_abs_string)
-        self.add(cookie.path(path))
+        next unless self._path(path, url.path)
+        cookie.path = path
+        self.add(cookie)
       end
     end
 
     # @param [URI] url
     def find(url)
-      return unless domain = host = url.host
-      path  = url.path
-      found = []
+      return unless url.clone.host
+      domain = url.host.clone
+      host   = url.host.clone
+      path   = url.path
+      found  = []
       while domain =~ /[^.]+\.[^.]+|localhost$/
         d = domain.clone.to_s
-        domain.gsub!(/^[^.]+\.?/, '')
-        next unless old = @jar[d]
+        domain.gsub!(/^[^\.]+\.?/, '')
 
+        next unless old = @jar[d]
         # Grab cookies
         new = @jar[d] = []
         old.each do |cookie|
-          next unless cookie.domain || host == cookie.origin
+          next if cookie.domain.nil? && host != cookie.origin
 
           # Check if cookie has expired
           expires = cookie.expires
@@ -95,21 +99,19 @@ module Marisa
           new << cookie
 
           # Taste cookie
-          next if cookie.secure && url.protocol != 'https'
+          next if cookie.secure && url.scheme != 'https'
           next unless self._path(cookie.path, path)
           name  = cookie.name
           value = cookie.value
           found << Marisa::Cookie::Request.new({:name => name, :value => value})
         end
-
       end
-
       found
     end
 
     def inject(req)
       return unless @jar.keys.length > 0
-      req.cookies(self.find(req.url))
+      req.cookies += self.find(req.url)
     end
 
     def _compare(cookie, path, name, origin)
@@ -118,7 +120,7 @@ module Marisa
     end
 
     def _path(arg1, arg2)
-      arg1 == '/' || arg1 == arg2 || arg2 =~ /^\Q#{arg1}\//
+      arg1 == '/' || arg1 == arg2 || arg2 =~ /^#{Regexp.quote(arg1)}\//
     end
   end
 end

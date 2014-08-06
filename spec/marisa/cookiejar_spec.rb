@@ -2,6 +2,8 @@ require 'rspec'
 require 'marisa/cookiejar'
 require 'marisa/cookie/request'
 require 'marisa/cookie/response'
+require 'marisa/message/request'
+require 'marisa/message/response'
 require 'uri'
 
 describe Marisa::CookieJar do
@@ -354,6 +356,37 @@ describe Marisa::CookieJar do
       expect(cookies[0].name).to eq('foo')
       expect(cookies[0].value).to eq('bar')
       expect(cookies[1]).to be_nil
+    end
+  end
+
+  context 'Extract and inject cookies without domain and path' do
+    it do
+      req = Marisa::Message::Request.new('http://mojolicio.us/perldoc/Mojolicious')
+      res = Marisa::Message::Response.new
+      res.cookies << Marisa::Cookie::Response.new(
+          {
+              :name  => 'foo',
+              :value => 'without',
+          }
+      )
+      jar.extract(req, res)
+      req = Marisa::Message::Request.new('http://mojolicio.us/perldoc')
+      jar.inject(req)
+      expect(req.cookie('foo').name).to eq('foo')
+      expect(req.cookie('foo').value).to eq('without')
+
+      req = Marisa::Message::Request.new('http://mojolicio.us/perldoc')
+      jar.inject(req)
+      expect(req.cookie('foo').name).to eq('foo')
+      expect(req.cookie('foo').value).to eq('without')
+
+      req = Marisa::Message::Request.new('http://www.mojolicio.us/perldoc')
+      jar.inject(req)
+      expect(req.cookie('foo')).to be_nil
+
+      req = Marisa::Message::Request.new('http://mojolicio.us/whatever')
+      jar.inject(req)
+      expect(req.cookie('foo')).to be_nil
     end
   end
 end

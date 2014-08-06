@@ -493,4 +493,5 @@ describe 'Marisa::Cookie::Response' do
       it { expect(cookies[1]).to be_nil }
     end
   end
+
 end
