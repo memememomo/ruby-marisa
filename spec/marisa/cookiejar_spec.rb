@@ -389,4 +389,135 @@ describe Marisa::CookieJar do
       expect(req.cookie('foo')).to be_nil
     end
   end
+
+  context 'Extract and inject cookies with IP address' do
+    it do
+      jar         = Marisa::CookieJar.new
+      req         = Marisa::Message::Request.new('http://213.133.102.53/perldoc/Mojolicious')
+      res         = Marisa::Message::Response.new
+      res.cookies += [
+          Marisa::Cookie::Response.new(
+              {
+                  :name   => 'foo',
+                  :value  => 'valid',
+                  :domain => '213.133.102.53',
+              }
+          ),
+          Marisa::Cookie::Response.new(
+              {
+                  :name  => 'bar',
+                  :value => 'too',
+              }
+          )
+      ]
+      jar.extract(req, res)
+
+      req = Marisa::Message::Request.new('http://213.133.102.53/perldoc/Mojolicious')
+      jar.inject(req)
+
+      expect(req.cookie('foo').name).to eq('foo')
+      expect(req.cookie('foo').value).to eq('valid')
+      expect(req.cookie('bar').name).to eq('bar')
+      expect(req.cookie('bar').value).to eq('too')
+    end
+  end
+
+  context 'Extract cookies with invalid domain' do
+    it do
+      jar         = Marisa::CookieJar.new
+      req         = Marisa::Message::Request.new('http://labs.example.com/perldoc/Mojolicious')
+      res         = Marisa::Message::Response.new
+      res.cookies += [
+          Marisa::Cookie::Response.new(
+              {
+                  :name   => 'foo',
+                  :value  => 'invalid',
+                  :domain => 'a.s.example.com',
+              },
+          ),
+          Marisa::Cookie::Response.new(
+              {
+                  :name   => 'foo',
+                  :value  => 'invalid',
+                  :domain => 'mojolicio.us',
+              }
+          )
+      ]
+      jar.extract(req, res)
+      expect(jar.all).to match_array []
+    end
+  end
+
+  context 'Extract cookies with invalid domain (IP address)' do
+    it do
+      jar         = Marisa::CookieJar.new
+      req         = Marisa::Message::Request.new('http://213.133.102.53/perldoc/Mojolicious')
+      res         = Marisa::Message::Response.new
+      res.cookies += [
+          Marisa::Cookie::Response.new(
+              {
+                  :name   => 'foo',
+                  :value  => 'valid',
+                  :domain => '213.133.102,53.',
+              }
+          ),
+          Marisa::Cookie::Response.new(
+              {
+                  :name   => 'foo',
+                  :value  => 'valid',
+                  :domain => '.133.102.53',
+              }
+          ),
+          Marisa::Cookie::Response.new(
+              {
+                  :name   => 'foo',
+                  :value  => 'invalid',
+                  :domain => '102.53',
+              }
+          ),
+          Marisa::Cookie::Response.new(
+              {
+                  :name   => 'foo',
+                  :value  => 'invalid',
+                  :domain => '53',
+              }
+          )
+      ]
+      jar.extract(req, res)
+      expect(jar.all).to match_array []
+    end
+  end
+
+  context 'Extract cookies with invalid path' do
+    it do
+      jar         = Marisa::CookieJar.new
+      req         = Marisa::Message::Request.new('http://labs.example.com/perldoc/Mojolicious')
+      res         = Marisa::Message::Response.new
+      res.cookies += [
+          Marisa::Cookie::Response.new(
+              {
+                  :name  => 'foo',
+                  :value => 'invalid',
+                  :path  => '/perldoc/index.html',
+              },
+          ),
+          Marisa::Cookie::Response.new(
+              {
+                  :name  => 'foo',
+                  :value => 'invalid',
+                  :path  => '/perldocMojolicious',
+              }
+          ),
+          Marisa::Cookie::Response.new(
+              {
+                  :name  => 'foo',
+                  :value => 'invalid',
+                  :path  => '/perldoc.Mojolicious',
+              }
+          )
+      ]
+      jar.extract(req, res)
+      expect(jar.all).to match_array []
+    end
+  end
 end
