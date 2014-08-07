@@ -4,6 +4,7 @@ require 'marisa/cookie/request'
 require 'marisa/cookie/response'
 require 'marisa/message/request'
 require 'marisa/message/response'
+require 'marisa/transaction/http'
 require 'uri'
 
 describe Marisa::CookieJar do
@@ -100,7 +101,6 @@ describe Marisa::CookieJar do
     end
   end
 
-  # TODO: IDNA
   context 'Random top-level domain and IDNA' do
     it do
       jar.add(
@@ -205,7 +205,7 @@ describe Marisa::CookieJar do
           )
       )
 
-      expired         = Marisa::Cookie::Response.new(
+      expired = Marisa::Cookie::Response.new(
           {
               :domain => 'labs.example.com',
               :path   => '/',
@@ -213,6 +213,7 @@ describe Marisa::CookieJar do
               :value  => '23',
           }
       )
+
       expired.expires = Time.now.to_i - 1
       jar.add(expired)
 
@@ -361,41 +362,46 @@ describe Marisa::CookieJar do
 
   context 'Extract and inject cookies without domain and path' do
     it do
-      req = Marisa::Message::Request.new('http://mojolicio.us/perldoc/Mojolicious')
-      res = Marisa::Message::Response.new
-      res.cookies << Marisa::Cookie::Response.new(
+      tx         = Marisa::Transaction::Http.new
+      tx.req.url = 'http://mojolicio.us/perldoc/Mojolicious'
+      tx.res.cookies << Marisa::Cookie::Response.new(
           {
               :name  => 'foo',
               :value => 'without',
           }
       )
-      jar.extract(req, res)
-      req = Marisa::Message::Request.new('http://mojolicio.us/perldoc')
-      jar.inject(req)
-      expect(req.cookie('foo').name).to eq('foo')
-      expect(req.cookie('foo').value).to eq('without')
+      jar.extract(tx)
+      tx         = Marisa::Transaction::Http.new
+      tx.req.url = 'http://mojolicio.us/perldoc'
+      jar.inject(tx)
+      expect(tx.req.cookie('foo').name).to eq('foo')
+      expect(tx.req.cookie('foo').value).to eq('without')
 
-      req = Marisa::Message::Request.new('http://mojolicio.us/perldoc')
-      jar.inject(req)
-      expect(req.cookie('foo').name).to eq('foo')
-      expect(req.cookie('foo').value).to eq('without')
+      tx         = Marisa::Transaction::Http.new
+      tx.req.url = 'http://mojolicio.us/perldoc'
+      jar.inject(tx)
+      expect(tx.req.cookie('foo').name).to eq('foo')
+      expect(tx.req.cookie('foo').value).to eq('without')
 
-      req = Marisa::Message::Request.new('http://www.mojolicio.us/perldoc')
-      jar.inject(req)
-      expect(req.cookie('foo')).to be_nil
+      tx         = Marisa::Transaction::Http.new
+      tx.req.url = 'http://www.mojolicio.us/perldoc'
+      jar.inject(tx)
+      expect(tx.req.cookie('foo')).to be_nil
 
-      req = Marisa::Message::Request.new('http://mojolicio.us/whatever')
-      jar.inject(req)
-      expect(req.cookie('foo')).to be_nil
+      tx         = Marisa::Transaction::Http.new
+      tx.req.url = 'http://mojolicio.us/whatever'
+      jar.inject(tx)
+      expect(tx.req.cookie('foo')).to be_nil
     end
   end
 
   context 'Extract and inject cookies with IP address' do
     it do
-      jar         = Marisa::CookieJar.new
-      req         = Marisa::Message::Request.new('http://213.133.102.53/perldoc/Mojolicious')
-      res         = Marisa::Message::Response.new
-      res.cookies += [
+      jar        = Marisa::CookieJar.new
+      tx         = Marisa::Transaction::Http.new
+      tx.req.url = 'http://213.133.102.53/perldoc/Mojolicious'
+
+      tx.res.cookies += [
           Marisa::Cookie::Response.new(
               {
                   :name   => 'foo',
@@ -410,24 +416,26 @@ describe Marisa::CookieJar do
               }
           )
       ]
-      jar.extract(req, res)
+      jar.extract(tx)
 
-      req = Marisa::Message::Request.new('http://213.133.102.53/perldoc/Mojolicious')
-      jar.inject(req)
+      tx         = Marisa::Transaction::Http.new
+      tx.req.url = 'http://213.133.102.53/perldoc/Mojolicious'
+      jar.inject(tx)
 
-      expect(req.cookie('foo').name).to eq('foo')
-      expect(req.cookie('foo').value).to eq('valid')
-      expect(req.cookie('bar').name).to eq('bar')
-      expect(req.cookie('bar').value).to eq('too')
+      expect(tx.req.cookie('foo').name).to eq('foo')
+      expect(tx.req.cookie('foo').value).to eq('valid')
+      expect(tx.req.cookie('bar').name).to eq('bar')
+      expect(tx.req.cookie('bar').value).to eq('too')
     end
   end
 
   context 'Extract cookies with invalid domain' do
     it do
-      jar         = Marisa::CookieJar.new
-      req         = Marisa::Message::Request.new('http://labs.example.com/perldoc/Mojolicious')
-      res         = Marisa::Message::Response.new
-      res.cookies += [
+      jar        = Marisa::CookieJar.new
+      tx         = Marisa::Transaction::Http.new
+      tx.req.url = 'http://labs.example.com/perldoc/Mojolicious'
+
+      tx.res.cookies += [
           Marisa::Cookie::Response.new(
               {
                   :name   => 'foo',
@@ -443,17 +451,17 @@ describe Marisa::CookieJar do
               }
           )
       ]
-      jar.extract(req, res)
+      jar.extract(tx)
       expect(jar.all).to match_array []
     end
   end
 
   context 'Extract cookies with invalid domain (IP address)' do
     it do
-      jar         = Marisa::CookieJar.new
-      req         = Marisa::Message::Request.new('http://213.133.102.53/perldoc/Mojolicious')
-      res         = Marisa::Message::Response.new
-      res.cookies += [
+      tx         = Marisa::Transaction::Http.new
+      tx.req.url = 'http://213.133.102.53/perldoc/Mojolicious'
+
+      tx.res.cookies += [
           Marisa::Cookie::Response.new(
               {
                   :name   => 'foo',
@@ -483,17 +491,17 @@ describe Marisa::CookieJar do
               }
           )
       ]
-      jar.extract(req, res)
+      jar.extract(tx)
       expect(jar.all).to match_array []
     end
   end
 
   context 'Extract cookies with invalid path' do
     it do
-      jar         = Marisa::CookieJar.new
-      req         = Marisa::Message::Request.new('http://labs.example.com/perldoc/Mojolicious')
-      res         = Marisa::Message::Response.new
-      res.cookies += [
+      tx         = Marisa::Transaction::Http.new
+      tx.req.url = 'http://labs.example.com/perldoc/Mojolicious'
+
+      tx.res.cookies += [
           Marisa::Cookie::Response.new(
               {
                   :name  => 'foo',
@@ -516,7 +524,7 @@ describe Marisa::CookieJar do
               }
           )
       ]
-      jar.extract(req, res)
+      jar.extract(tx)
       expect(jar.all).to match_array []
     end
   end

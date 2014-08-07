@@ -56,9 +56,9 @@ module Marisa
 
     # @param [Marisa::Request] req
     # @param [Marisa::Response] res
-    def extract(req, res)
-      url = req.url
-      res.cookies.each do |cookie|
+    def extract(tx)
+      url = tx.req.url
+      tx.res.cookies.each do |cookie|
         # Validate domain
         host          = url.host
         cookie.origin = host
@@ -109,9 +109,9 @@ module Marisa
       found
     end
 
-    def inject(req)
+    def inject(tx)
       return unless @jar.keys.length > 0
-      req.cookies += self.find(req.url)
+      tx.req.cookies += self.find(tx.req.url)
     end
 
     def _compare(cookie, path, name, origin)

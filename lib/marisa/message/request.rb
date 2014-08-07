@@ -5,8 +5,7 @@ module Marisa
     class Request < Marisa::Message::Base
       attr_accessor :url
 
-      def initialize(url)
-        super()
+      def url=(url)
         if url.class == 'URI'
           @url = url
         else
